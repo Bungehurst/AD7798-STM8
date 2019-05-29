@@ -1,0 +1,193 @@
+###############################################################################
+#                                                                             #
+# IAR C/C++ Compiler V1.31.1.20058 [Evaluation] for STM829/May/2019  13:11:06 #
+# Copyright 2010-2012 IAR Systems AB.                                         #
+#                                                                             #
+#    Source file  =  E:\Desktop\J19B_4E\BSP\spi\spi.c                         #
+#    Command line =  E:\Desktop\J19B_4E\BSP\spi\spi.c -e -Ol --no_cse         #
+#                    --no_unroll --no_inline --no_code_motion --no_tbaa       #
+#                    --no_cross_call --debug --code_model small --data_model  #
+#                    medium -o E:\Desktop\J19B_4E\Debug\Obj\ --dlib_config    #
+#                    "D:\Program Files (x86)\IAR Systems\Embedded Workbench   #
+#                    6.0 Evaluation\stm8\LIB\dlstm8smf.h" -lcN                #
+#                    E:\Desktop\J19B_4E\Debug\List\ -lB                       #
+#                    E:\Desktop\J19B_4E\Debug\List\ -I                        #
+#                    E:\Desktop\J19B_4E\Lib\inc\ -I                           #
+#                    E:\Desktop\J19B_4E\BSP\led\ -I                           #
+#                    E:\Desktop\J19B_4E\BSP\uart\ -I                          #
+#                    E:\Desktop\J19B_4E\BSP\AD7798\ -I                        #
+#                    E:\Desktop\J19B_4E\BSP\spi\ -I E:\Desktop\J19B_4E\USR\   #
+#                    -I E:\Desktop\J19B_4E\BSP\delay\ -I                      #
+#                    E:\Desktop\J19B_4E\BSP\tim1\ --vregs 16                  #
+#    List file    =  E:\Desktop\J19B_4E\Debug\List\spi.lst                    #
+#    Object file  =  E:\Desktop\J19B_4E\Debug\Obj\spi.o                       #
+#                                                                             #
+#                                                                             #
+###############################################################################
+
+E:\Desktop\J19B_4E\BSP\spi\spi.c
+      1          #include "spi.h"
+      2          #include "delay.h"
+      3          #include "AD7798.h"
+      4          void SPI_conf()
+      5          {
+      6            /* PA3 -> SPI_SEL   CS
+      7             * PC5 -> SPI_CLK   SCLK
+      8             * PC6 -> SPI_MOSI  DIN
+      9             * PC7 <- SPI_MISO  DOUT/RDY                                                       
+     10            */
+     11            
+     12            GPIO_Init(GPIOA,(GPIO_Pin_TypeDef)GPIO_PIN_3,GPIO_MODE_OUT_PP_HIGH_FAST);
+     13            GPIO_Init(GPIOC,(GPIO_Pin_TypeDef)GPIO_PIN_7,GPIO_MODE_IN_PU_NO_IT);
+     14            GPIO_Init(GPIOC,(GPIO_Pin_TypeDef)GPIO_PIN_6,GPIO_MODE_OUT_PP_HIGH_FAST);
+     15            GPIO_Init(GPIOC,(GPIO_Pin_TypeDef)GPIO_PIN_5,GPIO_MODE_OUT_PP_HIGH_FAST);
+     16            GPIO_WriteHigh(GPIOA,(GPIO_Pin_TypeDef)GPIO_PIN_3);
+     17          }
+     18          
+     19          unsigned char SPI_Write(unsigned char* data,
+     20                                  unsigned char bytesNumber)
+     21          {
+     22            u8 WriteData = 0;
+     23            for (int j = 0; j < bytesNumber;j++)
+     24            {
+     25              //AD7798_CS_LOW; 
+     26              WriteData = data[j];
+     27              for(int i=0;i<8;i++)
+     28              {
+     29                Delay_10us();
+     30                AD7798_SCLK_LOW ;
+     31                Delay_10us();
+     32                if(WriteData&0x80) AD7798_DIN_HIGH;
+     33                else AD7798_DIN_LOW ;
+     34                WriteData=WriteData<<1;
+     35                Delay_10us();
+     36                AD7798_SCLK_HIGH;
+     37                Delay_10us();
+     38              }  
+     39              //AD7798_CS_HIGH;
+     40            }
+     41            
+     42            return bytesNumber;
+     43          }
+     44          u32 SPI_Read_TwoBytes(unsigned char regAddress)
+     45          {
+     46              u32 receivedData = 0x00000000;	
+     47              u8 ReadData[3] = {0} ;
+     48              u8 data[5] = {0x03, 0x00, 0x00, 0x00, 0x00};
+     49              u8 WriteData = 0;
+     50              data[1] = AD7798_COMM_READ |  AD7798_COMM_ADDR(regAddress); 
+     51              AD7798_CS_LOW;
+     52              for (int j = 0; j < 2;j++)
+     53              {
+     54                WriteData = data[j];
+     55                for(int i=0;i<8;i++)
+     56                {
+     57                 Delay_10us();
+     58                 AD7798_SCLK_LOW ;
+     59                 Delay_10us();
+     60                 if(WriteData&0x80) AD7798_DIN_HIGH;
+     61                 else AD7798_DIN_LOW ;
+     62                 WriteData=WriteData<<1 ;
+     63                 Delay_10us();
+     64                 AD7798_SCLK_HIGH;
+     65                 Delay_10us();
+     66               }  
+     67              }
+     68              //AD7798_DOUT_LOW;
+     69              for(int j=0;j<3;j++)
+     70              {
+     71                for(int i=0;i<8;i++)
+     72               {
+     73                 Delay_10us();
+     74                 AD7798_SCLK_LOW;
+     75                 Delay_10us();
+     76                 ReadData[j] = ReadData[j]<<1 ;
+     77                 Delay_10us();
+     78                 if(AD7798_DOUT) ReadData[j]+=1 ;
+     79                 Delay_10us();
+     80                 AD7798_SCLK_HIGH;
+     81                 Delay_10us();
+     82               }
+     83               //Delay_10us();
+     84               //AD7798_DOUT_HIGH;
+     85              }
+     86              //Delay_10us();
+     87              AD7798_CS_HIGH;
+     88             
+     89              receivedData += (ReadData[0] << 16);
+     90              receivedData += (ReadData[1] << 8);
+     91              receivedData += (ReadData[2] << 0);
+     92          
+     93              return receivedData;
+     94          }
+     95          unsigned char SPI_Read(unsigned char* data,
+     96                                 unsigned char bytesNumber)
+     97          {
+     98            u8 ReadData = 0 ;
+     99            //WaitRDY();
+    100          //      for(int i=0;i<8;i++)
+    101          //    {
+    102          //       Delay_10us();
+    103          //       AD7798_SCLK_LOW;
+    104          //       Delay_10us();
+    105          //       Delay_10us();
+    106          //       AD7798_SCLK_HIGH;
+    107          //       Delay_10us();
+    108          //    }
+    109            for (int j = 0; j < bytesNumber;j++)
+    110            {
+    111              //AD7798_CS_LOW;
+    112              //AD7798_DOUT_LOW;
+    113              for(int i=0;i<8;i++)
+    114              {
+    115                 Delay_10us();
+    116                 AD7798_SCLK_LOW;
+    117                 Delay_10us();
+    118                 ReadData = ReadData<<1 ;
+    119                 if(AD7798_DOUT) ReadData+=1 ;
+    120                 Delay_10us();
+    121                 AD7798_SCLK_HIGH;
+    122                 Delay_10us();
+    123              }
+    124              data[j] = ReadData;
+    125              AD7798_DOUT_HIGH;
+    126              //AD7798_CS_HIGH;
+    127            }   
+    128          
+    129            return bytesNumber;                  
+    130          }
+    131          void WaitRDY(void)
+    132          {
+    133            u16 cont = 0;
+    134            while(AD7798_DOUT)
+    135            {
+    136              cont++;
+    137              if(cont>65530)
+    138              {
+    139                AD7798_Init();
+    140                break ;
+    141              }
+    142            }
+    143          }
+
+   Section sizes:
+
+     Function/Label              Bytes
+     --------------              -----
+     SPI_conf                      56
+     SPI_Write                    127
+     SPI_Read_TwoBytes            340
+     SPI_Read                     127
+     WaitRDY                       37
+     ?<Constant {0}>                3
+     ?<Constant {3, 0, 0, 0, 0}>    5
+
+ 
+   8 bytes in section .near.rodata
+ 687 bytes in section .near_func.text
+ 
+ 687 bytes of CODE  memory
+   8 bytes of CONST memory
+
+Errors: none
+Warnings: 1
