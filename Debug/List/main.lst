@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.31.1.20058 [Evaluation] for STM829/May/2019  12:34:16 #
+# IAR C/C++ Compiler V1.31.1.20058 [Evaluation] for STM830/May/2019  21:13:08 #
 # Copyright 2010-2012 IAR Systems AB.                                         #
 #                                                                             #
 #    Source file  =  E:\Desktop\J19B_4E\USR\main.c                            #
@@ -40,7 +40,7 @@ E:\Desktop\J19B_4E\USR\main.c
      12            enableInterrupts(); 
      13            while(1)
      14            {
-     15              GPIO_WriteReverse(GPIOB,(GPIO_Pin_TypeDef)GPIO_PIN_5);
+     15              
      16              Delay_ms(1000);
      17            }
      18          }
@@ -70,13 +70,13 @@ E:\Desktop\J19B_4E\USR\main.c
 
      Function/Label Bytes
      -------------- -----
-     main             36
+     main             28
      assert_failed     2
 
  
- 38 bytes in section .near_func.text
+ 30 bytes in section .near_func.text
  
- 38 bytes of CODE memory
+ 30 bytes of CODE memory
 
 Errors: none
 Warnings: none

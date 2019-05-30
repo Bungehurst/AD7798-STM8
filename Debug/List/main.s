@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                            /
-//                                                      29/May/2019  12:34:16 /
+//                                                      30/May/2019  21:13:08 /
 // IAR C/C++ Compiler V1.31.1.20058 [Evaluation] for STM8                     /
 // Copyright 2010-2012 IAR Systems AB.                                        /
 //                                                                            /
@@ -31,7 +31,6 @@
         EXTERN AD7798_Init
         EXTERN CLK_HSIPrescalerConfig
         EXTERN Delay_ms
-        EXTERN GPIO_WriteReverse
         EXTERN LED_conf
         EXTERN SPI_conf
         EXTERN UART_Config
@@ -67,12 +66,9 @@ main:
         RIM
 //   13   while(1)
 //   14   {
-//   15     GPIO_WriteReverse(GPIOB,(GPIO_Pin_TypeDef)GPIO_PIN_5);
-??main_0:
-        LD        A, #0x20
-        LDW       X, #0x5005
-        CALL      L:GPIO_WriteReverse
+//   15     
 //   16     Delay_ms(1000);
+??main_0:
         LDW       X, #0x3e8
         CALL      L:Delay_ms
         JRA       L:??main_0
@@ -110,9 +106,9 @@ assert_failed:
         END
 //   39 #endif
 // 
-// 38 bytes in section .near_func.text
+// 30 bytes in section .near_func.text
 // 
-// 38 bytes of CODE memory
+// 30 bytes of CODE memory
 //
 //Errors: none
 //Warnings: none

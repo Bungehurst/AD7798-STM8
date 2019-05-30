@@ -225,7 +225,7 @@ INTERRUPT_HANDLER(SPI_IRQHandler, 10)
   double ad_data;
 INTERRUPT_HANDLER(TIM1_UPD_OVF_TRG_BRK_IRQHandler, 11)
 {
-
+  GPIO_WriteReverse(GPIOB,(GPIO_Pin_TypeDef)GPIO_PIN_5);
   TIM1_ClearITPendingBit(TIM1_IT_UPDATE);
   
   if (AD7798_Ready())
@@ -237,7 +237,7 @@ INTERRUPT_HANDLER(TIM1_UPD_OVF_TRG_BRK_IRQHandler, 11)
     int sum = 0;
     tx_buf[0] = 0x5A;
     tx_buf[1] = 0xA5;
-    tx_buf[2] = 0x06;
+    tx_buf[2] = 0x04;
     tx_buf[3] = 0xAA;
     tx_buf[4] = 0x02;
     tx_buf[5] = ((uint16_t)(ad_data*1000))>>8 & 0xFF;
@@ -247,6 +247,8 @@ INTERRUPT_HANDLER(TIM1_UPD_OVF_TRG_BRK_IRQHandler, 11)
     tx_buf[8] = 0xFF;
     tx_buf[9] = 0xFE;
     i = 0;
+    GPIO_WriteHigh(GPIOA,(GPIO_Pin_TypeDef)GPIO_PIN_1);
+    Delay_ms(100);
     UART1_ITConfig(UART1_IT_TXE, ENABLE);
     TIM1_ITConfig(TIM1_IT_UPDATE, DISABLE);
 }
@@ -354,10 +356,12 @@ int j = 0;
    if(j<10) UART1_SendData8(tx_buf[j++]);
    else 
    {
+      GPIO_WriteLow(GPIOA,(GPIO_Pin_TypeDef)GPIO_PIN_1);
       UART1_ITConfig(UART1_IT_TXE, DISABLE);
       j = 0;
    }  
  }
+int sum = 0;
 
 /**
   * @brief UART1 RX Interrupt routine.
@@ -371,35 +375,47 @@ int j = 0;
    {
     UART1_ClearITPendingBit(UART1_IT_RXNE); 
     RxBuf = UART1_ReceiveData8();
-    if(is_rev_flag == 0)
+    if(RxBuf == 0x5A && is_rev_flag == 0)
     {
-     if(RxBuf == 0x5A)
+      is_rev_flag = 1;
+      return;
+    }
+    else if(is_rev_flag == 1 && RxBuf == 0xA5)
+    {
+      is_rev_flag = 2;
+      return ;
+    }
+    else if(is_rev_flag == 2 && RxBuf == 0x04)
+    { 
+       sum += RxBuf;
+       is_rev_flag = 3;
+       return;
+    }
+    else if(is_rev_flag == 3 && RxBuf == 0xAA)
+    {
+      sum += RxBuf;
+      is_rev_flag = 4;
+      return;
+    }
+    else if(is_rev_flag == 4)
+    {
+      if(sum == RxBuf)
       {
-       is_rev_flag = 1;
-        rx_buf[rev_num++] = RxBuf;
-     }
+        sum = 0;
+        is_rev_flag = 0;
+        TIM1_ITConfig(TIM1_IT_UPDATE, ENABLE); 
+        return;
+      }else
+      {
+        sum = 0;
+        is_rev_flag = 0;
+        return;
+      }
     }else
     {
-      if(rev_num < BUFFER_SIZE )
-      {
-         rx_buf[rev_num++] = RxBuf;
-        if(rev_num == BUFFER_SIZE)
-         {
-           rx_buf[rev_num] = RxBuf;
-           is_rev_flag = 0;
-           rev_num = 0;
-           if(rx_buf[2] == 0x06)
-           {
-            if(rx_buf[4] == (rx_buf[2]+rx_buf[3])&0xff)
-            {
-              if(rx_buf[3] == 0xAA)
-              {
-                TIM1_ITConfig(TIM1_IT_UPDATE, ENABLE); 
-              }
-            }
-           }
-         }
-      }
+      sum = 0;
+      is_rev_flag = 0;
+      return ;
     }
    }
    if(UART1->SR & UART1_SR_OR)

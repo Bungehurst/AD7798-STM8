@@ -12,7 +12,7 @@ int main(void)
   enableInterrupts(); 
   while(1)
   {
-    GPIO_WriteReverse(GPIOB,(GPIO_Pin_TypeDef)GPIO_PIN_5);
+    
     Delay_ms(1000);
   }
 }

@@ -28,7 +28,7 @@ ActionState=1
 Enabled=0
 ShowSource=1
 [DebugChecksum]
-Checksum=1730723482
+Checksum=2122761210
 [CallStack]
 ShowArgs=0
 [Disassembly]
@@ -50,6 +50,7 @@ Count=0
 A0=_ "C:\Users\lun55\Desktop\J19B_STM8\BSP\AD7798\AD7798.c" ""
 A1=_ "C:\Users\lun55\Desktop\J19B_STM8\Lib\stm8s_gpio.c" ""
 A2=_ "C:\Users\lun55\Desktop\J19B_STM8\Lib\stm8s_spi.c" ""
-A3=_ "E:\Desktop\J19B_STM8\Lib\src\stm8s_uart1.c" ""
-Count=4
+A3=_ "E:\Desktop\J19B_STM8\Lib\src\stm8s_tim1.c" ""
+A4=_ "E:\Desktop\J19B_STM8\Lib\src\stm8s_uart1.c" ""
+Count=5
 SuppressDialog=1
