@@ -8,7 +8,6 @@ void UART_Config(void)
 {
   /* TX EN & RX EN OF RS422*/
   GPIO_Init(GPIOA,(GPIO_Pin_TypeDef)(GPIO_PIN_1|GPIO_PIN_2),GPIO_MODE_OUT_PP_LOW_SLOW);
-  //GPIO_WriteHigh(GPIOA,(GPIO_Pin_TypeDef)GPIO_PIN_1);
   GPIO_WriteLow(GPIOA,(GPIO_Pin_TypeDef)GPIO_PIN_1);//tx dis
   GPIO_WriteLow(GPIOA,(GPIO_Pin_TypeDef)GPIO_PIN_2);//rx en
   

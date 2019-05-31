@@ -12,7 +12,6 @@ int main(void)
   enableInterrupts(); 
   while(1)
   {
-    
     Delay_ms(1000);
   }
 }

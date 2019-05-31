@@ -9,7 +9,7 @@
 *******************************************************************************/
 #ifndef __AD7798_H
 #define __AD7798_H
-
+#include "stm8s.h"
 /******************************************************************************/
 /* AD7798                                                                   */
 /******************************************************************************/
@@ -102,7 +102,7 @@ void AD7798_Init(void);
 /* Sends 32 consecutive 1's on SPI in order to reset the part. */
 void AD7798_Reset(void);
 /* Reads the value of the selected register. */
-unsigned long AD7798_GetRegisterValue(unsigned char regAddress,unsigned char size);
+u32 AD7798_GetRegisterValue(unsigned char regAddress,unsigned char size);
 /* Writes a value to the register. */
 void AD7798_SetRegisterValue(unsigned char regAddress,unsigned long regValue, unsigned char size);
 /* Sets the operating mode of AD7799. */

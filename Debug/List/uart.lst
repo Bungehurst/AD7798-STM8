@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.31.1.20058 [Evaluation] for STM830/May/2019  20:41:55 #
+# IAR C/C++ Compiler V1.31.1.20058 [Evaluation] for STM831/May/2019  16:46:01 #
 # Copyright 2010-2012 IAR Systems AB.                                         #
 #                                                                             #
 #    Source file  =  E:\Desktop\J19B_4E\BSP\uart\uart.c                       #
@@ -36,17 +36,16 @@ E:\Desktop\J19B_4E\BSP\uart\uart.c
       8          {
       9            /* TX EN & RX EN OF RS422*/
      10            GPIO_Init(GPIOA,(GPIO_Pin_TypeDef)(GPIO_PIN_1|GPIO_PIN_2),GPIO_MODE_OUT_PP_LOW_SLOW);
-     11            //GPIO_WriteHigh(GPIOA,(GPIO_Pin_TypeDef)GPIO_PIN_1);
-     12            GPIO_WriteLow(GPIOA,(GPIO_Pin_TypeDef)GPIO_PIN_1);//tx dis
-     13            GPIO_WriteLow(GPIOA,(GPIO_Pin_TypeDef)GPIO_PIN_2);//rx en
-     14            
-     15            UART1_DeInit();
-     16            UART1_Init((uint32_t)115200, UART1_WORDLENGTH_8D, UART1_STOPBITS_1, UART1_PARITY_NO,
-     17                        UART1_SYNCMODE_CLOCK_DISABLE, UART1_MODE_TXRX_ENABLE);
-     18            UART1_ITConfig(UART1_IT_RXNE_OR, ENABLE);
-     19            UART1_ITConfig(UART1_IT_TXE, DISABLE);   
-     20            UART1_Cmd(ENABLE);
-     21          }
+     11            GPIO_WriteLow(GPIOA,(GPIO_Pin_TypeDef)GPIO_PIN_1);//tx dis
+     12            GPIO_WriteLow(GPIOA,(GPIO_Pin_TypeDef)GPIO_PIN_2);//rx en
+     13            
+     14            UART1_DeInit();
+     15            UART1_Init((uint32_t)115200, UART1_WORDLENGTH_8D, UART1_STOPBITS_1, UART1_PARITY_NO,
+     16                        UART1_SYNCMODE_CLOCK_DISABLE, UART1_MODE_TXRX_ENABLE);
+     17            UART1_ITConfig(UART1_IT_RXNE_OR, ENABLE);
+     18            UART1_ITConfig(UART1_IT_TXE, DISABLE);   
+     19            UART1_Cmd(ENABLE);
+     20          }
 
    Section sizes:
 

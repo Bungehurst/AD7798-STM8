@@ -5,6 +5,7 @@ void Delay_1us(void)
 }
 void Delay_10us(void)     
 {
+ // asm("nop");
   asm("nop"); asm("nop");
   asm("nop"); asm("nop");
   asm("nop"); asm("nop");

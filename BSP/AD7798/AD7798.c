@@ -27,7 +27,7 @@ unsigned char status = 0x1;
 void AD7798_Init(void)
 { 
   AD7798_Reset();
-  Delay_ms(100);
+  Delay_ms(1000);
   while(1)
   {
     if(((AD7798_GetRegisterValue(AD7798_REG_ID, 1) ) & 0x0F) == AD7798_ID)
@@ -43,10 +43,9 @@ void AD7798_Init(void)
     AD7798_SetReference(AD7798_REFDET_ENA);
     AD7798_SetGain(AD7798_GAIN_1);
     
-    
-    //AD7798_SetMode(AD7798_MODE_CAL_INT_ZERO);
-    //Delay_ms(1000);
-    AD7798_SetMode(AD7798_MODE_CONT);
+    AD7798_SetMode(AD7798_MODE_CAL_SYS_ZERO);
+    Delay_ms(1000);
+    AD7798_SetMode(AD7798_MODE_SINGLE);
   }
 }
 
@@ -60,7 +59,10 @@ void AD7798_Init(void)
 void AD7798_Reset(void)
 {
   u8 dataToSend[5] = {0x03, 0xff, 0xff, 0xff, 0xff};	
+  AD7798_CS_LOW;
+  Delay_10us();
   SPI_Write(dataToSend,5);
+  AD7798_CS_HIGH;
 }
 /***************************************************************************//**
  * @brief Reads the value of the selected register
@@ -70,14 +72,14 @@ void AD7798_Reset(void)
  *
  * @return data - The value of the selected register register.
 *******************************************************************************/
-unsigned long AD7798_GetRegisterValue(unsigned char regAddress, unsigned char size)
+u32 AD7798_GetRegisterValue(unsigned char regAddress, unsigned char size)
 {
-    u32 receivedData = 0x00;	
-    u8 data[5] = {0x03, 0x00, 0x00, 0x00, 0x00};
+    u32 receivedData = 0x00000000;	
+    u8 data[5] = {0x00, 0x00, 0x00, 0x00, 0x00};
     data[1] = AD7798_COMM_READ |  AD7798_COMM_ADDR(regAddress); 
     AD7798_CS_LOW;
+    asm("nop");
     SPI_Write(data,2);
-    //WaitRDY();
     SPI_Read(data,size);
     AD7798_CS_HIGH;
     if(size == 1)
@@ -91,7 +93,7 @@ unsigned long AD7798_GetRegisterValue(unsigned char regAddress, unsigned char si
     }
     else if(size == 3)
     {
-      receivedData += (data[0] << 16);
+      receivedData += (data[0] *65536);
       receivedData += (data[1] << 8);
       receivedData += (data[2] << 0);
     }
@@ -127,7 +129,10 @@ void AD7798_SetRegisterValue(unsigned char regAddress,
 	data[3] = (unsigned char)((regValue & 0x00FF00) >> 8);
         data[2] = (unsigned char)((regValue & 0xFF0000) >> 16);
     }
+    AD7798_CS_LOW;
+    Delay_10us();
     SPI_Write(data,(1 + size));
+    AD7798_CS_HIGH;
 }
 /***************************************************************************//**
  * @brief Reads /RDY bit of status reg.

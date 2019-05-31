@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                            /
-//                                                      30/May/2019  20:41:55 /
+//                                                      31/May/2019  16:46:01 /
 // IAR C/C++ Compiler V1.31.1.20058 [Evaluation] for STM8                     /
 // Copyright 2010-2012 IAR Systems AB.                                        /
 //                                                                            /
@@ -63,20 +63,19 @@ UART_Config:
         LD        A, #0x6
         LDW       X, #0x5000
         CALL      L:GPIO_Init
-//   11   //GPIO_WriteHigh(GPIOA,(GPIO_Pin_TypeDef)GPIO_PIN_1);
-//   12   GPIO_WriteLow(GPIOA,(GPIO_Pin_TypeDef)GPIO_PIN_1);//tx dis
+//   11   GPIO_WriteLow(GPIOA,(GPIO_Pin_TypeDef)GPIO_PIN_1);//tx dis
         LD        A, #0x2
         LDW       X, #0x5000
         CALL      L:GPIO_WriteLow
-//   13   GPIO_WriteLow(GPIOA,(GPIO_Pin_TypeDef)GPIO_PIN_2);//rx en
+//   12   GPIO_WriteLow(GPIOA,(GPIO_Pin_TypeDef)GPIO_PIN_2);//rx en
         LD        A, #0x4
         LDW       X, #0x5000
         CALL      L:GPIO_WriteLow
-//   14   
-//   15   UART1_DeInit();
+//   13   
+//   14   UART1_DeInit();
         CALL      L:UART1_DeInit
-//   16   UART1_Init((uint32_t)115200, UART1_WORDLENGTH_8D, UART1_STOPBITS_1, UART1_PARITY_NO,
-//   17               UART1_SYNCMODE_CLOCK_DISABLE, UART1_MODE_TXRX_ENABLE);
+//   15   UART1_Init((uint32_t)115200, UART1_WORDLENGTH_8D, UART1_STOPBITS_1, UART1_PARITY_NO,
+//   16               UART1_SYNCMODE_CLOCK_DISABLE, UART1_MODE_TXRX_ENABLE);
         MOV       S:?b7, #0xc
         MOV       S:?b6, #0x80
         CLR       S:?b5
@@ -88,18 +87,18 @@ UART_Config:
         INCW      X
         LDW       S:?w0, X
         CALL      L:UART1_Init
-//   18   UART1_ITConfig(UART1_IT_RXNE_OR, ENABLE);
+//   17   UART1_ITConfig(UART1_IT_RXNE_OR, ENABLE);
         LD        A, #0x1
         LDW       X, #0x205
         CALL      L:UART1_ITConfig
-//   19   UART1_ITConfig(UART1_IT_TXE, DISABLE);   
+//   18   UART1_ITConfig(UART1_IT_TXE, DISABLE);   
         CLR       A
         LDW       X, #0x277
         CALL      L:UART1_ITConfig
-//   20   UART1_Cmd(ENABLE);
+//   19   UART1_Cmd(ENABLE);
         LD        A, #0x1
         JP        L:UART1_Cmd
-//   21 }
+//   20 }
 
         SECTION VREGS:DATA:REORDER:NOROOT(0)
 

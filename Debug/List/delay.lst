@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.31.1.20058 [Evaluation] for STM829/May/2019  09:27:06 #
+# IAR C/C++ Compiler V1.31.1.20058 [Evaluation] for STM831/May/2019  17:20:57 #
 # Copyright 2010-2012 IAR Systems AB.                                         #
 #                                                                             #
 #    Source file  =  E:\Desktop\J19B_4E\BSP\delay\delay.c                     #
@@ -33,7 +33,7 @@ E:\Desktop\J19B_4E\BSP\delay\delay.c
       5          }
       6          void Delay_10us(void)     
       7          {
-      8            asm("nop"); asm("nop");
+      8           // asm("nop");
       9            asm("nop"); asm("nop");
      10            asm("nop"); asm("nop");
      11            asm("nop"); asm("nop");
@@ -42,25 +42,25 @@ E:\Desktop\J19B_4E\BSP\delay\delay.c
      14            asm("nop"); asm("nop");
      15            asm("nop"); asm("nop");
      16            asm("nop"); asm("nop");
-     17            asm("nop"); asm("nop");  
-     18            asm("nop"); asm("nop");
+     17            asm("nop"); asm("nop");
+     18            asm("nop"); asm("nop");  
      19            asm("nop"); asm("nop");
      20            asm("nop"); asm("nop");
      21            asm("nop"); asm("nop");
-     22            asm("nop"); asm("nop"); 
-     23            asm("nop"); asm("nop");
+     22            asm("nop"); asm("nop");
+     23            asm("nop"); asm("nop"); 
      24            asm("nop"); asm("nop");
      25            asm("nop"); asm("nop");
      26            asm("nop"); asm("nop");
-     27            asm("nop"); asm("nop"); 
-     28            asm("nop"); asm("nop");
+     27            asm("nop"); asm("nop");
+     28            asm("nop"); asm("nop"); 
      29            asm("nop"); asm("nop");
      30            asm("nop"); asm("nop");
      31            asm("nop"); asm("nop");
      32            asm("nop"); asm("nop");
-     33            asm("nop");
-     34            
-     35            asm("nop"); asm("nop");
+     33            asm("nop"); asm("nop");
+     34            asm("nop");
+     35            
      36            asm("nop"); asm("nop");
      37            asm("nop"); asm("nop");
      38            asm("nop"); asm("nop");
@@ -69,35 +69,36 @@ E:\Desktop\J19B_4E\BSP\delay\delay.c
      41            asm("nop"); asm("nop");
      42            asm("nop"); asm("nop");
      43            asm("nop"); asm("nop");
-     44            asm("nop"); asm("nop");  
-     45            asm("nop"); asm("nop");
+     44            asm("nop"); asm("nop");
+     45            asm("nop"); asm("nop");  
      46            asm("nop"); asm("nop");
      47            asm("nop"); asm("nop");
      48            asm("nop"); asm("nop");
-     49            asm("nop"); asm("nop"); 
-     50            asm("nop"); asm("nop");
+     49            asm("nop"); asm("nop");
+     50            asm("nop"); asm("nop"); 
      51            asm("nop"); asm("nop");
      52            asm("nop"); asm("nop");
      53            asm("nop"); asm("nop");
-     54            asm("nop"); asm("nop"); 
-     55            asm("nop"); asm("nop");
+     54            asm("nop"); asm("nop");
+     55            asm("nop"); asm("nop"); 
      56            asm("nop"); asm("nop");
      57            asm("nop"); asm("nop");
      58            asm("nop"); asm("nop");
      59            asm("nop"); asm("nop");
-     60            asm("nop");
-     61          }
-     62          void Delay_ms(u16 time)
-     63          {
-     64            unsigned int i = 0;
-     65            while(time--)
-     66            {
-     67              for(i = 0; i < 1000; i++)
-     68              {
-     69                Delay_1us();
-     70              }
-     71            }
-     72          }
+     60            asm("nop"); asm("nop");
+     61            asm("nop");
+     62          }
+     63          void Delay_ms(u16 time)
+     64          {
+     65            unsigned int i = 0;
+     66            while(time--)
+     67            {
+     68              for(i = 0; i < 1000; i++)
+     69              {
+     70                Delay_1us();
+     71              }
+     72            }
+     73          }
 
    Section sizes:
 

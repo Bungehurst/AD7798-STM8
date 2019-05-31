@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.31.1.20058 [Evaluation] for STM829/May/2019  13:11:06 #
+# IAR C/C++ Compiler V1.31.1.20058 [Evaluation] for STM831/May/2019  19:47:10 #
 # Copyright 2010-2012 IAR Systems AB.                                         #
 #                                                                             #
 #    Source file  =  E:\Desktop\J19B_4E\BSP\spi\spi.c                         #
@@ -44,150 +44,83 @@ E:\Desktop\J19B_4E\BSP\spi\spi.c
      16            GPIO_WriteHigh(GPIOA,(GPIO_Pin_TypeDef)GPIO_PIN_3);
      17          }
      18          
-     19          unsigned char SPI_Write(unsigned char* data,
-     20                                  unsigned char bytesNumber)
+     19          unsigned char SPI_Write(u8* data,
+     20                                  u8 bytesNumber)
      21          {
      22            u8 WriteData = 0;
-     23            for (int j = 0; j < bytesNumber;j++)
-     24            {
-     25              //AD7798_CS_LOW; 
-     26              WriteData = data[j];
-     27              for(int i=0;i<8;i++)
-     28              {
-     29                Delay_10us();
-     30                AD7798_SCLK_LOW ;
-     31                Delay_10us();
+     23            AD7798_SCLK_HIGH ;
+     24            Delay_10us();
+     25          
+     26            for (int j = 0; j < bytesNumber;j++)
+     27            {
+     28              WriteData = data[j];
+     29              for(int i=0;i<8;i++)
+     30              {
+     31                AD7798_SCLK_LOW ;
      32                if(WriteData&0x80) AD7798_DIN_HIGH;
      33                else AD7798_DIN_LOW ;
-     34                WriteData=WriteData<<1;
-     35                Delay_10us();
-     36                AD7798_SCLK_HIGH;
-     37                Delay_10us();
+     34                Delay_10us();
+     35                AD7798_SCLK_HIGH;
+     36                Delay_10us();
+     37                WriteData=WriteData<<1;
      38              }  
-     39              //AD7798_CS_HIGH;
-     40            }
-     41            
-     42            return bytesNumber;
-     43          }
-     44          u32 SPI_Read_TwoBytes(unsigned char regAddress)
-     45          {
-     46              u32 receivedData = 0x00000000;	
-     47              u8 ReadData[3] = {0} ;
-     48              u8 data[5] = {0x03, 0x00, 0x00, 0x00, 0x00};
-     49              u8 WriteData = 0;
-     50              data[1] = AD7798_COMM_READ |  AD7798_COMM_ADDR(regAddress); 
-     51              AD7798_CS_LOW;
-     52              for (int j = 0; j < 2;j++)
-     53              {
-     54                WriteData = data[j];
-     55                for(int i=0;i<8;i++)
-     56                {
-     57                 Delay_10us();
-     58                 AD7798_SCLK_LOW ;
-     59                 Delay_10us();
-     60                 if(WriteData&0x80) AD7798_DIN_HIGH;
-     61                 else AD7798_DIN_LOW ;
-     62                 WriteData=WriteData<<1 ;
-     63                 Delay_10us();
-     64                 AD7798_SCLK_HIGH;
-     65                 Delay_10us();
-     66               }  
-     67              }
-     68              //AD7798_DOUT_LOW;
-     69              for(int j=0;j<3;j++)
-     70              {
-     71                for(int i=0;i<8;i++)
-     72               {
-     73                 Delay_10us();
-     74                 AD7798_SCLK_LOW;
-     75                 Delay_10us();
-     76                 ReadData[j] = ReadData[j]<<1 ;
-     77                 Delay_10us();
-     78                 if(AD7798_DOUT) ReadData[j]+=1 ;
-     79                 Delay_10us();
-     80                 AD7798_SCLK_HIGH;
-     81                 Delay_10us();
-     82               }
-     83               //Delay_10us();
-     84               //AD7798_DOUT_HIGH;
-     85              }
-     86              //Delay_10us();
-     87              AD7798_CS_HIGH;
-     88             
-     89              receivedData += (ReadData[0] << 16);
-     90              receivedData += (ReadData[1] << 8);
-     91              receivedData += (ReadData[2] << 0);
-     92          
-     93              return receivedData;
-     94          }
-     95          unsigned char SPI_Read(unsigned char* data,
-     96                                 unsigned char bytesNumber)
-     97          {
-     98            u8 ReadData = 0 ;
-     99            //WaitRDY();
-    100          //      for(int i=0;i<8;i++)
-    101          //    {
-    102          //       Delay_10us();
-    103          //       AD7798_SCLK_LOW;
-    104          //       Delay_10us();
-    105          //       Delay_10us();
-    106          //       AD7798_SCLK_HIGH;
-    107          //       Delay_10us();
-    108          //    }
-    109            for (int j = 0; j < bytesNumber;j++)
-    110            {
-    111              //AD7798_CS_LOW;
-    112              //AD7798_DOUT_LOW;
-    113              for(int i=0;i<8;i++)
-    114              {
-    115                 Delay_10us();
-    116                 AD7798_SCLK_LOW;
-    117                 Delay_10us();
-    118                 ReadData = ReadData<<1 ;
-    119                 if(AD7798_DOUT) ReadData+=1 ;
-    120                 Delay_10us();
-    121                 AD7798_SCLK_HIGH;
-    122                 Delay_10us();
-    123              }
-    124              data[j] = ReadData;
-    125              AD7798_DOUT_HIGH;
-    126              //AD7798_CS_HIGH;
-    127            }   
-    128          
-    129            return bytesNumber;                  
-    130          }
-    131          void WaitRDY(void)
-    132          {
-    133            u16 cont = 0;
-    134            while(AD7798_DOUT)
-    135            {
-    136              cont++;
-    137              if(cont>65530)
-    138              {
-    139                AD7798_Init();
-    140                break ;
-    141              }
-    142            }
-    143          }
+     39            }
+     40          
+     41            return bytesNumber;
+     42          }
+     43          
+     44          unsigned char SPI_Read(u8* data,
+     45                                 u8 bytesNumber)
+     46          {
+     47            u8 ReadData = 0 ;
+     48            u8 bit;
+     49          
+     50            AD7798_SCLK_HIGH;
+     51            Delay_10us();
+     52            for (int j = 0; j < bytesNumber;j++)
+     53            {
+     54              for(int i=0;i<8;i++)
+     55              {
+     56                 AD7798_SCLK_LOW;
+     57                 ReadData = ReadData<<1 ;
+     58                 Delay_10us();
+     59                 bit = AD7798_DOUT;
+     60                 AD7798_SCLK_HIGH;
+     61                 if(bit) ReadData+=1 ;
+     62                 Delay_10us();
+     63                 
+     64              }
+     65              data[j] = ReadData;
+     66            }   
+     67            return bytesNumber;                  
+     68          }
+     69          void WaitRDY(void)
+     70          {
+     71            u16 cont = 0;
+     72            while(AD7798_DOUT)
+     73            {
+     74              cont++;
+     75              if(cont>65530)
+     76              {
+     77                AD7798_Init();
+     78                break ;
+     79              }
+     80            }
+     81          }
 
    Section sizes:
 
-     Function/Label              Bytes
-     --------------              -----
-     SPI_conf                      56
-     SPI_Write                    127
-     SPI_Read_TwoBytes            340
-     SPI_Read                     127
-     WaitRDY                       37
-     ?<Constant {0}>                3
-     ?<Constant {3, 0, 0, 0, 0}>    5
+     Function/Label Bytes
+     -------------- -----
+     SPI_conf         56
+     SPI_Write       132
+     SPI_Read        129
+     WaitRDY          16
 
  
-   8 bytes in section .near.rodata
- 687 bytes in section .near_func.text
+ 333 bytes in section .near_func.text
  
- 687 bytes of CODE  memory
-   8 bytes of CONST memory
+ 333 bytes of CODE memory
 
 Errors: none
-Warnings: 1
+Warnings: none

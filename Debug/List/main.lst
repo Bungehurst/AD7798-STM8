@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.31.1.20058 [Evaluation] for STM830/May/2019  21:13:08 #
+# IAR C/C++ Compiler V1.31.1.20058 [Evaluation] for STM831/May/2019  19:04:44 #
 # Copyright 2010-2012 IAR Systems AB.                                         #
 #                                                                             #
 #    Source file  =  E:\Desktop\J19B_4E\USR\main.c                            #
@@ -40,31 +40,30 @@ E:\Desktop\J19B_4E\USR\main.c
      12            enableInterrupts(); 
      13            while(1)
      14            {
-     15              
-     16              Delay_ms(1000);
-     17            }
-     18          }
-     19          
-     20          #ifdef USE_FULL_ASSERT
-     21          
-     22          /**
-     23            * @brief  Reports the name of the source file and the source line number
-     24            *   where the assert_param error has occurred.
-     25            * @param file: pointer to the source file name
-     26            * @param line: assert_param error line source number
-     27            * @retval None
-     28            */
-     29          void assert_failed(uint8_t* file, uint32_t line)
-     30          { 
-     31            /* User can add his own implementation to report the file name and line number,
-     32               ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-     33          
-     34            /* Infinite loop */
-     35            while (1)
-     36            {
-     37            }
-     38          }
-     39          #endif
+     15              Delay_ms(1000);
+     16            }
+     17          }
+     18          
+     19          #ifdef USE_FULL_ASSERT
+     20          
+     21          /**
+     22            * @brief  Reports the name of the source file and the source line number
+     23            *   where the assert_param error has occurred.
+     24            * @param file: pointer to the source file name
+     25            * @param line: assert_param error line source number
+     26            * @retval None
+     27            */
+     28          void assert_failed(uint8_t* file, uint32_t line)
+     29          { 
+     30            /* User can add his own implementation to report the file name and line number,
+     31               ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+     32          
+     33            /* Infinite loop */
+     34            while (1)
+     35            {
+     36            }
+     37          }
+     38          #endif
 
    Section sizes:
 

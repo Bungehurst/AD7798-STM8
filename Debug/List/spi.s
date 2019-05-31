@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                            /
-//                                                      29/May/2019  13:11:06 /
+//                                                      31/May/2019  19:47:10 /
 // IAR C/C++ Compiler V1.31.1.20058 [Evaluation] for STM8                     /
 // Copyright 2010-2012 IAR Systems AB.                                        /
 //                                                                            /
@@ -28,7 +28,6 @@
 
         NAME spi
 
-        EXTERN ?add32_l0_l0_l1
         EXTERN ?b0
         EXTERN ?b10
         EXTERN ?b11
@@ -39,30 +38,21 @@
         EXTERN ?b8
         EXTERN ?b9
         EXTERN ?epilogue_l2_l3
-        EXTERN ?epilogue_w4
-        EXTERN ?mov_l0_l2
-        EXTERN ?mov_l1_l2
-        EXTERN ?mov_l2_l0
-        EXTERN ?move1616_v_x_y_a
+        EXTERN ?epilogue_l2_w6
         EXTERN ?push_l2
         EXTERN ?push_l3
-        EXTERN ?push_w4
-        EXTERN ?sext32_l0_x
+        EXTERN ?push_w6
         EXTERN ?w0
-        EXTERN ?w1
         EXTERN ?w4
         EXTERN ?w5
         EXTERN ?w6
-        EXTERN ?w7
         EXTERN AD7798_Init
         EXTERN Delay_10us
         EXTERN GPIO_Init
-        EXTERN GPIO_ReadInputPin
         EXTERN GPIO_WriteHigh
         EXTERN GPIO_WriteLow
 
         PUBLIC SPI_Read
-        PUBLIC SPI_Read_TwoBytes
         PUBLIC SPI_Write
         PUBLIC SPI_conf
         PUBLIC WaitRDY
@@ -112,8 +102,8 @@ SPI_conf:
 
         SECTION `.near_func.text`:CODE:REORDER:NOROOT(0)
         CODE
-//   19 unsigned char SPI_Write(unsigned char* data,
-//   20                         unsigned char bytesNumber)
+//   19 unsigned char SPI_Write(u8* data,
+//   20                         u8 bytesNumber)
 //   21 {
 SPI_Write:
         CALL      L:?push_l2
@@ -122,7 +112,14 @@ SPI_Write:
         LD        S:?b14, A
 //   22   u8 WriteData = 0;
         CLR       S:?b15
-//   23   for (int j = 0; j < bytesNumber;j++)
+//   23   AD7798_SCLK_HIGH ;
+        LD        A, #0x20
+        LDW       X, #0x500a
+        CALL      L:GPIO_WriteHigh
+//   24   Delay_10us();
+        CALL      L:Delay_10us
+//   25 
+//   26   for (int j = 0; j < bytesNumber;j++)
         CLR       S:?b11
         CLR       S:?b10
         JRA       L:??SPI_Write_0
@@ -139,40 +136,37 @@ SPI_Write:
         LDW       X, S:?w5
         CPW       X, S:?w0
         JRSGE     L:??SPI_Write_2
-//   24   {
-//   25     //AD7798_CS_LOW; 
-//   26     WriteData = data[j];
+//   27   {
+//   28     WriteData = data[j];
         LDW       X, S:?w5
         ADDW      X, S:?w6
         LD        A, (X)
         LD        S:?b15, A
-//   27     for(int i=0;i<8;i++)
+//   29     for(int i=0;i<8;i++)
         CLR       S:?b9
         CLR       S:?b8
         JRA       L:??SPI_Write_3
-//   28     {
-//   29       Delay_10us();
-//   30       AD7798_SCLK_LOW ;
-//   31       Delay_10us();
+//   30     {
+//   31       AD7798_SCLK_LOW ;
 //   32       if(WriteData&0x80) AD7798_DIN_HIGH;
 //   33       else AD7798_DIN_LOW ;
 ??SPI_Write_4:
         LD        A, #0x40
         LDW       X, #0x500a
         CALL      L:GPIO_WriteLow
-//   34       WriteData=WriteData<<1;
+//   34       Delay_10us();
 ??SPI_Write_5:
-        LD        A, S:?b15
-        SLL       A
-        LD        S:?b15, A
-//   35       Delay_10us();
         CALL      L:Delay_10us
-//   36       AD7798_SCLK_HIGH;
+//   35       AD7798_SCLK_HIGH;
         LD        A, #0x20
         LDW       X, #0x500a
         CALL      L:GPIO_WriteHigh
-//   37       Delay_10us();
+//   36       Delay_10us();
         CALL      L:Delay_10us
+//   37       WriteData=WriteData<<1;
+        LD        A, S:?b15
+        SLL       A
+        LD        S:?b15, A
         LDW       X, S:?w4
         INCW      X
         LDW       S:?w4, X
@@ -180,11 +174,9 @@ SPI_Write:
         LDW       X, S:?w4
         CPW       X, #0x8
         JRSGE     L:??SPI_Write_1
-        CALL      L:Delay_10us
         LD        A, #0x20
         LDW       X, #0x500a
         CALL      L:GPIO_WriteLow
-        CALL      L:Delay_10us
         LD        A, S:?b15
         AND       A, #0x80
         CP        A, #0x0
@@ -194,299 +186,73 @@ SPI_Write:
         CALL      L:GPIO_WriteHigh
         JRA       L:??SPI_Write_5
 //   38     }  
-//   39     //AD7798_CS_HIGH;
-//   40   }
-//   41   
-//   42   return bytesNumber;
+//   39   }
+//   40 
+//   41   return bytesNumber;
 ??SPI_Write_2:
         LD        A, S:?b14
         JP        L:?epilogue_l2_l3
-//   43 }
+//   42 }
+//   43 
 
         SECTION `.near_func.text`:CODE:REORDER:NOROOT(0)
         CODE
-//   44 u32 SPI_Read_TwoBytes(unsigned char regAddress)
-//   45 {
-SPI_Read_TwoBytes:
-        CALL      L:?push_l2
-        CALL      L:?push_l3
-        SUB       SP, #0xa
-        LD        S:?b0, A
-//   46     u32 receivedData = 0x00000000;	
-        CLRW      X
-        LDW       S:?w5, X
-        LDW       S:?w4, X
-//   47     u8 ReadData[3] = {0} ;
-        LDW       Y, #`?<Constant {0}>`
-        LDW       X, SP
-        ADDW      X, #0x3
-        PUSHW     X
-        LD        A, #0x3
-        CALL      L:?move1616_v_x_y_a
-        POPW      X
-//   48     u8 data[5] = {0x03, 0x00, 0x00, 0x00, 0x00};
-        LDW       Y, #`?<Constant {3, 0, 0, 0, 0}>`
-        LDW       X, SP
-        ADDW      X, #0x6
-        PUSHW     X
-        LD        A, #0x5
-        CALL      L:?move1616_v_x_y_a
-        POPW      X
-//   49     u8 WriteData = 0;
-        CLR       S:?b14
-//   50     data[1] = AD7798_COMM_READ |  AD7798_COMM_ADDR(regAddress); 
-        LD        A, S:?b0
-        AND       A, #0x7
-        SLL       A
-        SLL       A
-        SLL       A
-        OR        A, #0x40
-        LD        (0x7,SP), A
-//   51     AD7798_CS_LOW;
-        LD        A, #0x8
-        LDW       X, #0x5000
-        CALL      L:GPIO_WriteLow
-//   52     for (int j = 0; j < 2;j++)
-        CLRW      X
-        LDW       (0x1,SP), X
-        JRA       L:??SPI_Read_TwoBytes_0
-??SPI_Read_TwoBytes_1:
-        LDW       X, (0x1,SP)
-        INCW      X
-        LDW       (0x1,SP), X
-??SPI_Read_TwoBytes_0:
-        LDW       X, (0x1,SP)
-        CPW       X, #0x2
-        JRSGE     L:??SPI_Read_TwoBytes_2
-//   53     {
-//   54       WriteData = data[j];
-        LDW       X, SP
-        ADDW      X, #0x6
-        ADDW      X, (0x1,SP)
-        LD        A, (X)
-        LD        S:?b14, A
-//   55       for(int i=0;i<8;i++)
-        CLR       S:?b13
-        CLR       S:?b12
-        JRA       L:??SPI_Read_TwoBytes_3
-//   56       {
-//   57        Delay_10us();
-//   58        AD7798_SCLK_LOW ;
-//   59        Delay_10us();
-//   60        if(WriteData&0x80) AD7798_DIN_HIGH;
-//   61        else AD7798_DIN_LOW ;
-??SPI_Read_TwoBytes_4:
-        LD        A, #0x40
-        LDW       X, #0x500a
-        CALL      L:GPIO_WriteLow
-//   62        WriteData=WriteData<<1 ;
-??SPI_Read_TwoBytes_5:
-        LD        A, S:?b14
-        SLL       A
-        LD        S:?b14, A
-//   63        Delay_10us();
-        CALL      L:Delay_10us
-//   64        AD7798_SCLK_HIGH;
-        LD        A, #0x20
-        LDW       X, #0x500a
-        CALL      L:GPIO_WriteHigh
-//   65        Delay_10us();
-        CALL      L:Delay_10us
-        LDW       X, S:?w6
-        INCW      X
-        LDW       S:?w6, X
-??SPI_Read_TwoBytes_3:
-        LDW       X, S:?w6
-        CPW       X, #0x8
-        JRSGE     L:??SPI_Read_TwoBytes_1
-        CALL      L:Delay_10us
-        LD        A, #0x20
-        LDW       X, #0x500a
-        CALL      L:GPIO_WriteLow
-        CALL      L:Delay_10us
-        LD        A, S:?b14
-        AND       A, #0x80
-        CP        A, #0x0
-        JREQ      L:??SPI_Read_TwoBytes_4
-        LD        A, #0x40
-        LDW       X, #0x500a
-        CALL      L:GPIO_WriteHigh
-        JRA       L:??SPI_Read_TwoBytes_5
-//   66      }  
-//   67     }
-//   68     //AD7798_DOUT_LOW;
-//   69     for(int j=0;j<3;j++)
-??SPI_Read_TwoBytes_2:
-        CLR       S:?b15
-        CLR       S:?b14
-        JRA       L:??SPI_Read_TwoBytes_6
-//   70     {
-//   71       for(int i=0;i<8;i++)
-//   72      {
-//   73        Delay_10us();
-??SPI_Read_TwoBytes_7:
-        CALL      L:Delay_10us
-//   74        AD7798_SCLK_LOW;
-        LD        A, #0x20
-        LDW       X, #0x500a
-        CALL      L:GPIO_WriteLow
-//   75        Delay_10us();
-        CALL      L:Delay_10us
-//   76        ReadData[j] = ReadData[j]<<1 ;
-        LDW       X, SP
-        ADDW      X, #0x3
-        ADDW      X, S:?w7
-        LD        A, (X)
-        SLL       A
-        LDW       X, SP
-        ADDW      X, #0x3
-        ADDW      X, S:?w7
-        LD        (X), A
-//   77        Delay_10us();
-        CALL      L:Delay_10us
-//   78        if(AD7798_DOUT) ReadData[j]+=1 ;
-        LD        A, #0x80
-        LDW       X, #0x500a
-        CALL      L:GPIO_ReadInputPin
-        CP        A, #0x0
-        JREQ      L:??SPI_Read_TwoBytes_8
-        LDW       X, SP
-        ADDW      X, #0x3
-        ADDW      X, S:?w7
-        LD        A, (X)
-        ADD       A, #0x1
-        LDW       X, SP
-        ADDW      X, #0x3
-        ADDW      X, S:?w7
-        LD        (X), A
-//   79        Delay_10us();
-??SPI_Read_TwoBytes_8:
-        CALL      L:Delay_10us
-//   80        AD7798_SCLK_HIGH;
-        LD        A, #0x20
-        LDW       X, #0x500a
-        CALL      L:GPIO_WriteHigh
-//   81        Delay_10us();
-        CALL      L:Delay_10us
-//   82      }
-        LDW       X, S:?w6
-        INCW      X
-        LDW       S:?w6, X
-??SPI_Read_TwoBytes_9:
-        LDW       X, S:?w6
-        CPW       X, #0x8
-        JRSLT     L:??SPI_Read_TwoBytes_7
-        LDW       X, S:?w7
-        INCW      X
-        LDW       S:?w7, X
-??SPI_Read_TwoBytes_6:
-        LDW       X, S:?w7
-        CPW       X, #0x3
-        JRSGE     L:??SPI_Read_TwoBytes_10
-        CLR       S:?b13
-        CLR       S:?b12
-        JRA       L:??SPI_Read_TwoBytes_9
-//   83      //Delay_10us();
-//   84      //AD7798_DOUT_HIGH;
-//   85     }
-//   86     //Delay_10us();
-//   87     AD7798_CS_HIGH;
-??SPI_Read_TwoBytes_10:
-        LD        A, #0x8
-        LDW       X, #0x5000
-        CALL      L:GPIO_WriteHigh
-//   88    
-//   89     receivedData += (ReadData[0] << 16);
-//   90     receivedData += (ReadData[1] << 8);
-        LD        A, (0x4,SP)
-        CLRW      X
-        LD        XL, A
-        CLR       A
-        RLWA      X, A
-        CALL      L:?sext32_l0_x
-        CALL      L:?mov_l1_l2
-        CALL      L:?add32_l0_l0_l1
-        CALL      L:?mov_l2_l0
-//   91     receivedData += (ReadData[2] << 0);
-        LD        A, (0x5,SP)
-        CLRW      X
-        LD        XL, A
-        LDW       S:?w1, X
-        CLRW      X
-        LDW       S:?w0, X
-        CALL      L:?mov_l1_l2
-        CALL      L:?add32_l0_l0_l1
-        CALL      L:?mov_l2_l0
-//   92 
-//   93     return receivedData;
-        CALL      L:?mov_l0_l2
-        ADD       SP, #0xa
-        JP        L:?epilogue_l2_l3
-//   94 }
-
-        SECTION `.near_func.text`:CODE:REORDER:NOROOT(0)
-        CODE
-//   95 unsigned char SPI_Read(unsigned char* data,
-//   96                        unsigned char bytesNumber)
-//   97 {
+//   44 unsigned char SPI_Read(u8* data,
+//   45                        u8 bytesNumber)
+//   46 {
 SPI_Read:
         CALL      L:?push_l2
-        CALL      L:?push_l3
-        LDW       S:?w6, X
-        LD        S:?b14, A
-//   98   u8 ReadData = 0 ;
-        CLR       S:?b15
-//   99   //WaitRDY();
-//  100 //      for(int i=0;i<8;i++)
-//  101 //    {
-//  102 //       Delay_10us();
-//  103 //       AD7798_SCLK_LOW;
-//  104 //       Delay_10us();
-//  105 //       Delay_10us();
-//  106 //       AD7798_SCLK_HIGH;
-//  107 //       Delay_10us();
-//  108 //    }
-//  109   for (int j = 0; j < bytesNumber;j++)
+        CALL      L:?push_w6
+        PUSH      S:?b14
+        PUSHW     X
+        LD        S:?b13, A
+//   47   u8 ReadData = 0 ;
+        CLR       S:?b12
+//   48   u8 bit;
+//   49 
+//   50   AD7798_SCLK_HIGH;
+        LD        A, #0x20
+        LDW       X, #0x500a
+        CALL      L:GPIO_WriteHigh
+//   51   Delay_10us();
+        CALL      L:Delay_10us
+//   52   for (int j = 0; j < bytesNumber;j++)
         CLR       S:?b11
         CLR       S:?b10
         JRA       L:??SPI_Read_0
-//  110   {
-//  111     //AD7798_CS_LOW;
-//  112     //AD7798_DOUT_LOW;
-//  113     for(int i=0;i<8;i++)
-//  114     {
-//  115        Delay_10us();
+//   53   {
+//   54     for(int i=0;i<8;i++)
+//   55     {
+//   56        AD7798_SCLK_LOW;
 ??SPI_Read_1:
-        CALL      L:Delay_10us
-//  116        AD7798_SCLK_LOW;
         LD        A, #0x20
         LDW       X, #0x500a
         CALL      L:GPIO_WriteLow
-//  117        Delay_10us();
-        CALL      L:Delay_10us
-//  118        ReadData = ReadData<<1 ;
-        LD        A, S:?b15
+//   57        ReadData = ReadData<<1 ;
+        LD        A, S:?b12
         SLL       A
-        LD        S:?b15, A
-//  119        if(AD7798_DOUT) ReadData+=1 ;
-        LD        A, #0x80
-        LDW       X, #0x500a
-        CALL      L:GPIO_ReadInputPin
-        CP        A, #0x0
-        JREQ      L:??SPI_Read_2
-        LD        A, S:?b15
-        ADD       A, #0x1
-        LD        S:?b15, A
-//  120        Delay_10us();
-??SPI_Read_2:
+        LD        S:?b12, A
+//   58        Delay_10us();
         CALL      L:Delay_10us
-//  121        AD7798_SCLK_HIGH;
+//   59        bit = AD7798_DOUT;
+        LD        A, L:0x500b
+        AND       A, #0x80
+        LD        S:?b14, A
+//   60        AD7798_SCLK_HIGH;
         LD        A, #0x20
         LDW       X, #0x500a
         CALL      L:GPIO_WriteHigh
-//  122        Delay_10us();
+//   61        if(bit) ReadData+=1 ;
+        TNZ       S:?b14
+        JREQ      L:??SPI_Read_2
+        LD        A, S:?b12
+        ADD       A, #0x1
+        LD        S:?b12, A
+//   62        Delay_10us();
+??SPI_Read_2:
         CALL      L:Delay_10us
-//  123     }
+//   63        
+//   64     }
         LDW       X, S:?w4
         INCW      X
         LDW       S:?w4, X
@@ -494,22 +260,18 @@ SPI_Read:
         LDW       X, S:?w4
         CPW       X, #0x8
         JRSLT     L:??SPI_Read_1
-//  124     data[j] = ReadData;
+//   65     data[j] = ReadData;
         LDW       X, S:?w5
-        ADDW      X, S:?w6
-        LD        A, S:?b15
+        ADDW      X, (0x1,SP)
+        LD        A, S:?b12
         LD        (X), A
-//  125     AD7798_DOUT_HIGH;
-        LD        A, #0x80
-        LDW       X, #0x500a
-        CALL      L:GPIO_WriteHigh
         LDW       X, S:?w5
         INCW      X
         LDW       S:?w5, X
 ??SPI_Read_0:
         CLRW      X
         EXG       A, XL
-        LD        A, S:?b14
+        LD        A, S:?b13
         EXG       A, XL
         LDW       S:?w0, X
         LDW       X, S:?w5
@@ -518,67 +280,48 @@ SPI_Read:
         CLR       S:?b9
         CLR       S:?b8
         JRA       L:??SPI_Read_3
-//  126     //AD7798_CS_HIGH;
-//  127   }   
-//  128 
-//  129   return bytesNumber;                  
+//   66   }   
+//   67   return bytesNumber;                  
 ??SPI_Read_4:
-        LD        A, S:?b14
-        JP        L:?epilogue_l2_l3
-//  130 }
+        LD        A, S:?b13
+        ADD       SP, #0x2
+        POP       S:?b14
+        JP        L:?epilogue_l2_w6
+//   68 }
 
         SECTION `.near_func.text`:CODE:REORDER:NOROOT(0)
         CODE
-//  131 void WaitRDY(void)
-//  132 {
+//   69 void WaitRDY(void)
+//   70 {
+//   71   u16 cont = 0;
 WaitRDY:
-        CALL      L:?push_w4
-//  133   u16 cont = 0;
-        CLR       S:?b9
-        CLR       S:?b8
-//  134   while(AD7798_DOUT)
+        CLRW      X
+//   72   while(AD7798_DOUT)
 ??WaitRDY_0:
-        LD        A, #0x80
-        LDW       X, #0x500a
-        CALL      L:GPIO_ReadInputPin
-        CP        A, #0x0
-        JREQ      L:??WaitRDY_1
-//  135   {
-//  136     cont++;
-        LDW       X, S:?w4
+        BTJF      L:0x500b, #0x7, L:??WaitRDY_1
+//   73   {
+//   74     cont++;
         INCW      X
-        LDW       S:?w4, X
-//  137     if(cont>65530)
-        LDW       X, S:?w4
+//   75     if(cont>65530)
         CPW       X, #0xfffb
         JRC       L:??WaitRDY_0
-//  138     {
-//  139       AD7798_Init();
+//   76     {
+//   77       AD7798_Init();
         CALL      L:AD7798_Init
-//  140       break ;
-//  141     }
-//  142   }
-//  143 }
+//   78       break ;
+//   79     }
+//   80   }
+//   81 }
 ??WaitRDY_1:
-        JP        L:?epilogue_w4
+        RET
 
         SECTION VREGS:DATA:REORDER:NOROOT(0)
 
-        SECTION `.near.rodata`:CONST:REORDER:NOROOT(0)
-`?<Constant {0}>`:
-        DC8 0, 0, 0
-
-        SECTION `.near.rodata`:CONST:REORDER:NOROOT(0)
-`?<Constant {3, 0, 0, 0, 0}>`:
-        DC8 3, 0, 0, 0, 0
-
         END
 // 
-//   8 bytes in section .near.rodata
-// 687 bytes in section .near_func.text
+// 333 bytes in section .near_func.text
 // 
-// 687 bytes of CODE  memory
-//   8 bytes of CONST memory
+// 333 bytes of CODE memory
 //
 //Errors: none
-//Warnings: 1
+//Warnings: none

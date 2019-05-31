@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                            /
-//                                                      29/May/2019  09:27:06 /
+//                                                      31/May/2019  17:20:57 /
 // IAR C/C++ Compiler V1.31.1.20058 [Evaluation] for STM8                     /
 // Copyright 2010-2012 IAR Systems AB.                                        /
 //                                                                            /
@@ -49,11 +49,9 @@ Delay_1us:
         CODE
 //    6 void Delay_10us(void)     
 //    7 {
-//    8   asm("nop"); asm("nop");
-Delay_10us:
-        nop
-        nop
+//    8  // asm("nop");
 //    9   asm("nop"); asm("nop");
+Delay_10us:
         nop
         nop
 //   10   asm("nop"); asm("nop");
@@ -77,10 +75,10 @@ Delay_10us:
 //   16   asm("nop"); asm("nop");
         nop
         nop
-//   17   asm("nop"); asm("nop");  
+//   17   asm("nop"); asm("nop");
         nop
         nop
-//   18   asm("nop"); asm("nop");
+//   18   asm("nop"); asm("nop");  
         nop
         nop
 //   19   asm("nop"); asm("nop");
@@ -92,10 +90,10 @@ Delay_10us:
 //   21   asm("nop"); asm("nop");
         nop
         nop
-//   22   asm("nop"); asm("nop"); 
+//   22   asm("nop"); asm("nop");
         nop
         nop
-//   23   asm("nop"); asm("nop");
+//   23   asm("nop"); asm("nop"); 
         nop
         nop
 //   24   asm("nop"); asm("nop");
@@ -107,10 +105,10 @@ Delay_10us:
 //   26   asm("nop"); asm("nop");
         nop
         nop
-//   27   asm("nop"); asm("nop"); 
+//   27   asm("nop"); asm("nop");
         nop
         nop
-//   28   asm("nop"); asm("nop");
+//   28   asm("nop"); asm("nop"); 
         nop
         nop
 //   29   asm("nop"); asm("nop");
@@ -125,12 +123,12 @@ Delay_10us:
 //   32   asm("nop"); asm("nop");
         nop
         nop
-//   33   asm("nop");
-        nop
-//   34   
-//   35   asm("nop"); asm("nop");
+//   33   asm("nop"); asm("nop");
         nop
         nop
+//   34   asm("nop");
+        nop
+//   35   
 //   36   asm("nop"); asm("nop");
         nop
         nop
@@ -155,10 +153,10 @@ Delay_10us:
 //   43   asm("nop"); asm("nop");
         nop
         nop
-//   44   asm("nop"); asm("nop");  
+//   44   asm("nop"); asm("nop");
         nop
         nop
-//   45   asm("nop"); asm("nop");
+//   45   asm("nop"); asm("nop");  
         nop
         nop
 //   46   asm("nop"); asm("nop");
@@ -170,10 +168,10 @@ Delay_10us:
 //   48   asm("nop"); asm("nop");
         nop
         nop
-//   49   asm("nop"); asm("nop"); 
+//   49   asm("nop"); asm("nop");
         nop
         nop
-//   50   asm("nop"); asm("nop");
+//   50   asm("nop"); asm("nop"); 
         nop
         nop
 //   51   asm("nop"); asm("nop");
@@ -185,10 +183,10 @@ Delay_10us:
 //   53   asm("nop"); asm("nop");
         nop
         nop
-//   54   asm("nop"); asm("nop"); 
+//   54   asm("nop"); asm("nop");
         nop
         nop
-//   55   asm("nop"); asm("nop");
+//   55   asm("nop"); asm("nop"); 
         nop
         nop
 //   56   asm("nop"); asm("nop");
@@ -203,39 +201,42 @@ Delay_10us:
 //   59   asm("nop"); asm("nop");
         nop
         nop
-//   60   asm("nop");
+//   60   asm("nop"); asm("nop");
         nop
-//   61 }
+        nop
+//   61   asm("nop");
+        nop
+//   62 }
         RET
 
         SECTION `.near_func.text`:CODE:REORDER:NOROOT(0)
         CODE
-//   62 void Delay_ms(u16 time)
-//   63 {
-//   64   unsigned int i = 0;
+//   63 void Delay_ms(u16 time)
+//   64 {
+//   65   unsigned int i = 0;
 Delay_ms:
         CLRW      Y
-//   65   while(time--)
+//   66   while(time--)
 ??Delay_ms_0:
         LDW       Y, X
         LDW       X, Y
         DECW      X
         TNZW      Y
         JREQ      L:??Delay_ms_1
-//   66   {
-//   67     for(i = 0; i < 1000; i++)
+//   67   {
+//   68     for(i = 0; i < 1000; i++)
         CLRW      Y
 ??Delay_ms_2:
         CPW       Y, #0x3e8
         JRNC      L:??Delay_ms_0
-//   68     {
-//   69       Delay_1us();
+//   69     {
+//   70       Delay_1us();
         CALL      L:Delay_1us
-//   70     }
+//   71     }
         INCW      Y
         JRA       L:??Delay_ms_2
-//   71   }
-//   72 }
+//   72   }
+//   73 }
 ??Delay_ms_1:
         RET
 

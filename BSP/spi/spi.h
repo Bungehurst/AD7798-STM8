@@ -20,13 +20,13 @@
 #define AD7798_DOUT_LOW  GPIO_WriteLow(GPIOC,(GPIO_Pin_TypeDef)GPIO_PIN_7)
 #define AD7798_DOUT_HIGH GPIO_WriteHigh(GPIOC,(GPIO_Pin_TypeDef)GPIO_PIN_7)
 
-#define AD7798_DOUT GPIO_ReadInputPin(GPIOC,(GPIO_Pin_TypeDef)GPIO_PIN_7)
+#define AD7798_DOUT (GPIOC->IDR & 0x80)
 void SPI_conf();
 void WaitRDY();
-unsigned char SPI_Write(unsigned char* data,
-                        unsigned char bytesNumber);
-unsigned char SPI_Read(unsigned char* data,
-                        unsigned char bytesNumber);
-u32 SPI_Read_TwoBytes(unsigned char regAddress);
+unsigned char SPI_Write(u8* data,
+                        u8 bytesNumber);
+unsigned char SPI_Read(u8* data,
+                        u8 bytesNumber);
+//u32 SPI_Read_TwoBytes(u8 regAddress);
 
 #endif

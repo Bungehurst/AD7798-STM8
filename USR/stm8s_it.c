@@ -221,27 +221,28 @@ INTERRUPT_HANDLER(SPI_IRQHandler, 10)
   * @param  None
   * @retval None
   */
-  u32 raw_data;
-  double ad_data;
+u32 raw_data;
+double ad_data;
 INTERRUPT_HANDLER(TIM1_UPD_OVF_TRG_BRK_IRQHandler, 11)
 {
   GPIO_WriteReverse(GPIOB,(GPIO_Pin_TypeDef)GPIO_PIN_5);
   TIM1_ClearITPendingBit(TIM1_IT_UPDATE);
-  
+  AD7798_SetMode(AD7798_MODE_SINGLE);
+  Delay_ms(100);
   if (AD7798_Ready())
   {
     raw_data = AD7798_GetRegisterValue(AD7798_REG_DATA,3);
-    ad_data = ((raw_data&0xFFFFFF)/8388608.0 - 1.0)*2.49;
+    ad_data = ((raw_data)/8388608.0 - 1.0)*2.49;
   }
     ad_data = abs(ad_data);
     int sum = 0;
     tx_buf[0] = 0x5A;
     tx_buf[1] = 0xA5;
-    tx_buf[2] = 0x04;
+    tx_buf[2] = 0x06;
     tx_buf[3] = 0xAA;
     tx_buf[4] = 0x02;
-    tx_buf[5] = ((uint16_t)(ad_data*1000))>>8 & 0xFF;
-    tx_buf[6] = ((uint16_t)(ad_data*1000)) & 0xFF;
+    tx_buf[5] = (uint8_t)(((uint16_t)(ad_data*1000))>>8 & 0xFF);
+    tx_buf[6] = (uint8_t)(((uint16_t)(ad_data*1000)) & 0xFF);
     sum = tx_buf[5]+tx_buf[6];
     tx_buf[7] = sum&0xFF;
     tx_buf[8] = 0xFF;
@@ -385,7 +386,7 @@ int sum = 0;
       is_rev_flag = 2;
       return ;
     }
-    else if(is_rev_flag == 2 && RxBuf == 0x04)
+    else if(is_rev_flag == 2 && RxBuf == 0x06)
     { 
        sum += RxBuf;
        is_rev_flag = 3;
